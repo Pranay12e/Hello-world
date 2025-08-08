@@ -23,6 +23,21 @@ pipeline {
                 bat 'mvn test'
             }
         }
+       stage('Upload to Artifactory') {
+            steps {
+                rtUpload (
+                    serverId: 'my-artifactory', // Your configured server ID in Jenkins
+                    spec: """{
+                        "files": [
+                            {
+                                "pattern": "target/*.jar",
+                                "target": "libs-release-local/myapp/"
+                            }
+                        ]
+                    }"""
+                )
+            }
+        }
 
     }
 
