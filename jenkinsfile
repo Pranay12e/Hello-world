@@ -30,12 +30,28 @@ pipeline {
                     spec: """{
                         "files": [
                             {
-                                "pattern": "target/*.jar",
+                                "pattern": "target/*.war",
                                 "target": "libs-release-local/myapp/"
                             }
                         ]
                     }"""
                 )
+            }
+        }
+  stage('Deploy to Tomcat') {
+            steps {
+                bat '''
+                REM Create temp folder
+                if not exist C:\\temp mkdir C:\\temp
+
+                REM Download WAR from Artifactory
+                jfrog rt download "libs-release-local/myapp/*.war" "C:\\temp\\myapp.war" --server-id=my-artifactory
+
+                REM Copy WAR to Tomcat webapps folder
+                copy /Y C:\\temp\\myapp.war "C:\\apache-tomcat-9.0.108\\webapps\\myapp.war"
+
+                echo Deployment complete. Please start Tomcat manually.
+                '''
             }
         }
 
