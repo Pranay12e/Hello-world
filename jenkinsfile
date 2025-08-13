@@ -38,22 +38,25 @@ pipeline {
                 )
             }
         }
-  stage('Deploy to Tomcat') {
-            steps {
-                bat '''
-                REM Create temp folder
-                if not exist C:\\temp mkdir C:\\temp
+ stage('Deploy to Tomcat') {
+    steps {
+        rtDownload (
+            serverId: 'my-artifactory',
+            spec: """{
+                "files": [
+                    {
+                        "pattern": "libs-release-local/myapp/*.war",
+                        "target": "C:/temp/myapp.war"
+                    }
+                ]
+            }"""
+        )
 
-                REM Download WAR from Artifactory
-                jfrog rt download "libs-release-local/myapp/*.war" "C:\\temp\\myapp.war" --server-id=my-artifactory
+        bat 'copy /Y C:\\temp\\myapp.war "C:\\apache-tomcat-9.0.108\\webapps\\myapp.war"'
+        echo 'Deployment complete. Please start Tomcat manually.'
+    }
+}
 
-                REM Copy WAR to Tomcat webapps folder
-                copy /Y C:\\temp\\myapp.war "C:\\apache-tomcat-9.0.108\\webapps\\myapp.war"
-
-                echo Deployment complete. Please start Tomcat manually.
-                '''
-            }
-        }
 
     }
 
