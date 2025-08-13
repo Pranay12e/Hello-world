@@ -52,7 +52,7 @@ pipeline {
             }"""
         )
 
-        bat 'copy /Y C:\\temp\\myapp.war "C:\\apache-tomcat-9.0.108\\webapps\\myapp.war"'
+        bat 'copy /Y C:\temp\myapp\myapp.war "C:\apache-tomcat-9.0.108\webapps\myapp.war"'
         echo 'Deployment complete. Please start Tomcat manually.'
     }
 }
