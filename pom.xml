@@ -42,7 +42,7 @@
         <version>3.2.5</version>
       </plugin>
 
-      <!-- ✅ Maven WAR Plugin: skip web.xml requirement -->
+<!--       <!-- ✅ Maven WAR Plugin: skip web.xml requirement -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
@@ -50,7 +50,7 @@
         <configuration>
           <failOnMissingWebXml>false</failOnMissingWebXml>
         </configuration>
-      </plugin>
+      </plugin> -->
     </plugins>
   </build>
 </project>
