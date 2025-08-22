@@ -23,10 +23,11 @@ pipeline {
                 bat 'mvn test'
             }
         }
-       stage('Upload to Artifactory') {
+
+        stage('Upload to Artifactory') {
             steps {
                 rtUpload (
-                    serverId: 'my-artifactory', // Your configured server ID in Jenkins
+                    serverId: 'my-artifactory',
                     spec: """{
                         "files": [
                             {
@@ -38,34 +39,18 @@ pipeline {
                 )
             }
         }
- stage('Deploy to Tomcat') {
-    steps {
-        rtDownload (
-            serverId: 'my-artifactory',
-            spec: """{
-                "files": [
-                    {
-                        "pattern": "libs-release-local/myapp/*.war",
-                        "target": "C:/temp/myapp.war"
-                    }
-                ]
-            }"""
-        )
 
-        bat 'copy /Y C:\\temp\\myapp\\myapp.war "C:\\apache-tomcat-9.0.108\\webapps\\myapp.war"'
-        echo 'Deployment complete. Please start Tomcat manually.'
-    }
-}
-
-
-    }
-
-    post {
-        success {
-            echo '✅ Build and Test Successful!'
-        }
-        failure {
-            echo '❌ Build Failed!'
+        stage('Deploy to Tomcat on EC2') {
+            steps {
+                sshagent(['ec2-key']) {
+                    bat '''
+                        bash -c "jfrog rt download \\"libs-release-local/myapp/*.war\\" target/"
+                        bash -c "scp -o StrictHostKeyChecking=no target/*.war ec2-user@<EC2_PUBLIC_IP>:/opt/tomcat9/webapps/myapp.war"
+                        bash -c "ssh -o StrictHostKeyChecking=no ec2-user@<EC2_PUBLIC_IP> \\"sudo systemctl restart tomcat\\""
+                    '''
+                }
+            }
         }
     }
 }
+
