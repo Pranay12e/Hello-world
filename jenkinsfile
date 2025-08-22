@@ -40,31 +40,29 @@ pipeline {
             }
         }
 
-        stage('Deploy to EC2 Tomcat') {
+        stage('Deploy to Tomcat on EC2') {
             steps {
-                // Download WAR to Jenkins workspace (Windows)
                 rtDownload (
                     serverId: 'my-artifactory',
                     spec: """{
                         "files": [
                             {
                                 "pattern": "libs-release-local/myapp/*.war",
-                                "target": "target/"
+                                "target": "C:/temp/myapp.war"
                             }
                         ]
                     }"""
                 )
 
-                // Use scp + ssh from Jenkins (Windows -> EC2)
-                withCredentials([sshUserPrivateKey(credentialsId: 'ec2-key', keyFileVariable: 'KEYFILE', usernameVariable: 'USER')]) {
-                    sh """
-                        scp -i $KEYFILE -o StrictHostKeyChecking=no target/*.war $USER@3.7.46.195:/opt/tomcat9/webapps/myapp.war
-                        ssh -i $KEYFILE -o StrictHostKeyChecking=no $USER@3.7.46.195 "sudo systemctl restart tomcat"
-                    """
-                }
+                // Send WAR file to EC2 Tomcat webapps folder
+                bat '''
+                scp -i C:/keys/myec2-key.pem C:/temp/myapp.war ec2-user@3.7.46.195:/opt/tomcat9/webapps/myapp.war
+                ssh -i C:/keys/myec2-key.pem ec2-user@3.7.46.195 "sudo systemctl restart tomcat"
+                '''
             }
         }
     }
 }
+
 
 
