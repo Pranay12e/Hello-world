@@ -55,10 +55,11 @@ pipeline {
                 )
 
                 // Send WAR file to EC2 Tomcat webapps folder
-                bat '''
-                scp -i "C:/keys/myec2-key.pem" "C:/temp/myapp/myapp.war" ec2-user@3.7.46.195:/opt/tomcat9/webapps/myapp.war
-                ssh -i "C:/keys/myec2-key.pem" ec2-user@3.7.46.195 "sudo systemctl restart tomcat"
-                '''
+               bat '''
+scp -o StrictHostKeyChecking=no -i "C:/keys/myec2-key.pem" "C:/temp/myapp/myapp.war" ec2-user@3.7.46.195:/opt/tomcat9/webapps/myapp.war
+ssh -o StrictHostKeyChecking=no -i "C:/keys/myec2-key.pem" ec2-user@3.7.46.195 "sudo systemctl restart tomcat"
+'''
+
             }
         }
     }
