@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven'   
+        maven 'Maven'
     }
 
     stages {
@@ -40,17 +40,31 @@ pipeline {
             }
         }
 
-        stage('Deploy to Tomcat on EC2') {
+        stage('Deploy to EC2 Tomcat') {
             steps {
-                sshagent(['ec2-key']) {
-                    bat '''
-                        bash -c "jfrog rt download \\"libs-release-local/myapp/*.war\\" target/"
-                        bash -c "scp -o StrictHostKeyChecking=no target/*.war ec2-user@3.7.46.195:/opt/tomcat9/webapps/myapp.war"
-                        bash -c "ssh -o StrictHostKeyChecking=no ec2-user@3.7.46.195 \\"sudo systemctl restart tomcat\\""
-                    '''
+                // Download WAR to Jenkins workspace (Windows)
+                rtDownload (
+                    serverId: 'my-artifactory',
+                    spec: """{
+                        "files": [
+                            {
+                                "pattern": "libs-release-local/myapp/*.war",
+                                "target": "target/"
+                            }
+                        ]
+                    }"""
+                )
+
+                // Use scp + ssh from Jenkins (Windows -> EC2)
+                withCredentials([sshUserPrivateKey(credentialsId: 'ec2-key', keyFileVariable: 'KEYFILE', usernameVariable: 'USER')]) {
+                    sh """
+                        scp -i $KEYFILE -o StrictHostKeyChecking=no target/*.war $USER@3.7.46.195:/opt/tomcat9/webapps/myapp.war
+                        ssh -i $KEYFILE -o StrictHostKeyChecking=no $USER@3.7.46.195 "sudo systemctl restart tomcat"
+                    """
                 }
             }
         }
     }
 }
+
 
