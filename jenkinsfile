@@ -45,8 +45,8 @@ pipeline {
                 sshagent(['ec2-key']) {
                     bat '''
                         bash -c "jfrog rt download \\"libs-release-local/myapp/*.war\\" target/"
-                        bash -c "scp -o StrictHostKeyChecking=no target/*.war ec2-user@<EC2_PUBLIC_IP>:/opt/tomcat9/webapps/myapp.war"
-                        bash -c "ssh -o StrictHostKeyChecking=no ec2-user@<EC2_PUBLIC_IP> \\"sudo systemctl restart tomcat\\""
+                        bash -c "scp -o StrictHostKeyChecking=no target/*.war ec2-user@3.7.46.195:/opt/tomcat9/webapps/myapp.war"
+                        bash -c "ssh -o StrictHostKeyChecking=no ec2-user@3.7.46.195 \\"sudo systemctl restart tomcat\\""
                     '''
                 }
             }
